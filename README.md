@@ -13,7 +13,7 @@ This repository contains the code for the autonomous robot.
     - `core/`: State machine base classes.
     - `states/`: Robot behavior states.
     - `subsystems/`: Hardware drivers (DriveTrain, Vision).
-- `ESP/`: C++ firmware for the motor controller.
+- `ESP/`: C firmware for the motor controller.
 
 ## Development Setup (Python)
 
