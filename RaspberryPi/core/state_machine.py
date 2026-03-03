@@ -26,7 +26,7 @@ class State(ABC):
     @abstractmethod
     def update(self):
         """
-        Called periodically to update the state logic.
+        Called while within the state to perform any necessary actions.
         """
         pass
 
