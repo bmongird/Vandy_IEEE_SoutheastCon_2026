@@ -3,102 +3,99 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
-#include "driver/spi_slave.h"
 #include "esp_log.h"
 
-// pin definitions
-#define BLINK_GPIO 2
+// Bring in our copied libraries
+#include "motor.h"
+#include "spi_secondary.h"
+#include "pid.h"
 
-// ESP32 SPI Slave configuration
-#define GPIO_MOSI 23
-#define GPIO_MISO 19
-#define GPIO_SCLK 18
-#define GPIO_CS   5
+#define TAG "MOTORS_MAIN"
 
-static const char *TAG = "spi_demo";
+// Mimicking the robot structure from IEEE_Hardware_Competition_2025
+typedef struct {
+    motor_t frontLeft;
+    motor_t frontRight;
+    motor_t backRight;
+    motor_t backLeft;
+    motor_t eliServo1; //idk what u wanna name these
+    motor_t eliServo2;
+    motor_t lazyTong;
 
-void blink_task(void *pvParameters)
-{
-    ESP_LOGI(TAG, "Configuring LED blink pin!");
-    gpio_reset_pin(BLINK_GPIO);
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    motor_t *omniMotors;    /* An array of the four maneuver DC motors*/
+} robot_t;
 
-    int led_state = 0;
-    while (1) {
-        led_state = !led_state;
-        gpio_set_level(BLINK_GPIO, led_state);
-        vTaskDelay(500 / portTICK_PERIOD_MS);
-    }
+robot_t robot_singleton;
+
+void full_motor_init() {
+    init_motor_resources();
+
+    robot_singleton.omniMotors = malloc(sizeof(motor_t) * 4);
+
+    motor_t frontLeft =     { .pwm_pin = 17,    .group_id = 0, .timer_id = 0, .oper_id = 0, .type = DC_MOTOR };
+    motor_t frontRight =    { .pwm_pin = 21,    .group_id = 0, .timer_id = 0, .oper_id = 0, .type = DC_MOTOR };
+    motor_t backLeft =      { .pwm_pin = 25,    .group_id = 0, .timer_id = 1, .oper_id = 1, .type = DC_MOTOR };
+    motor_t backRight =     { .pwm_pin = 32,    .group_id = 0, .timer_id = 1, .oper_id = 1, .type = DC_MOTOR };
+    motor_t eliServo1 =   { .pwm_pin = 33,    .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
+    motor_t eliServo2 =  { .pwm_pin = 4,     .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
+    motor_t lazyTong =      { .pwm_pin = 27,    .group_id = 1, .timer_id = 0, .oper_id = 0, .type = SERVO_MOTOR };
+
+    motor_control_init(&frontLeft);
+    motor_control_init(&frontRight);
+    motor_control_init(&backRight);
+    motor_control_init(&backLeft);
+    motor_control_init(&eliServo1);
+    motor_control_init(&eliServo2);
+    motor_control_init(&lazyTong);
+
+    robot_singleton.frontLeft = frontLeft;
+    robot_singleton.frontRight = frontRight;
+    robot_singleton.backLeft = backLeft;
+    robot_singleton.backRight = backRight;
+    robot_singleton.eliServo1 = eliServo1;
+    robot_singleton.eliServo2 = eliServo2;
+    robot_singleton.lazyTong = lazyTong;
+    robot_singleton.omniMotors[0] = frontRight;
+    robot_singleton.omniMotors[1] = frontLeft;
+    robot_singleton.omniMotors[2] = backRight;
+    robot_singleton.omniMotors[3] = backLeft;
+
+    dc_set_speed(&robot_singleton.eliServo1, 0);
+    dc_set_speed(&robot_singleton.eliServo2, 0);
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    servo_set_angle(&robot_singleton.lazyTong, 240);
+    
+    // outtake_reset logic is skipped since we lack the GPIO configuration for it here for now.
 }
 
-void spi_slave_task(void *pvParameters)
-{
-    // Configuration for the SPI bus
-    spi_bus_config_t buscfg={
-        .mosi_io_num=GPIO_MOSI,
-        .miso_io_num=GPIO_MISO,
-        .sclk_io_num=GPIO_SCLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-    };
 
-    // Configuration for the SPI slave interface
-    spi_slave_interface_config_t slvcfg={
-        .mode=0,
-        .spics_io_num=GPIO_CS,
-        .queue_size=3,
-        .flags=0,
-    };
+int setup() {
+    /* Motor Initialization Sequence */
+    ESP_LOGI(TAG, "Initializing Motors");
+    full_motor_init();
+    
+    // Give it a brief moment
+    vTaskDelay(pdMS_TO_TICKS(500));
 
-    // Enable pull-ups on SPI lines so we don't have rogue pulses when no master is connected.
-    gpio_set_pull_mode(GPIO_MOSI, GPIO_PULLUP_ONLY);
-    gpio_set_pull_mode(GPIO_SCLK, GPIO_PULLUP_ONLY);
-    gpio_set_pull_mode(GPIO_CS, GPIO_PULLUP_ONLY);
-
-    // Initialize SPI slave interface
-    esp_err_t ret = spi_slave_initialize(SPI2_HOST, &buscfg, &slvcfg, SPI_DMA_CH_AUTO);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize SPI slave");
-        vTaskDelete(NULL);
-    }
-
-    ESP_LOGI(TAG, "SPI Slave initialized. Ext: MOSI=%d MISO=%d SCLK=%d CS=%d", GPIO_MOSI, GPIO_MISO, GPIO_SCLK, GPIO_CS);
-
-    // Buffers for SPI transactions
-    WORD_ALIGNED_ATTR char sendbuf[32] = "";
-    WORD_ALIGNED_ATTR char recvbuf[32] = "";
-
-    spi_slave_transaction_t t;
-    memset(&t, 0, sizeof(t));
-
-    int trans_count = 0;
-
-    while (1) {
-        // Prepare data to send to master
-        snprintf(sendbuf, sizeof(sendbuf), "ESP Msg: %d", trans_count++);
-
-        // Set up the transaction
-        t.length = 32 * 8; // 32 bytes in bits
-        t.tx_buffer = sendbuf;
-        t.rx_buffer = recvbuf;
-
-        // This call will block until a transaction is completed by the master
-        ret = spi_slave_transmit(SPI2_HOST, &t, portMAX_DELAY);
-
-        if (ret == ESP_OK) {
-            ESP_LOGI(TAG, "Received from Master: %s", recvbuf);
-            ESP_LOGI(TAG, "Sent to Master: %s", sendbuf);
-        } else {
-            ESP_LOGE(TAG, "SPI Transmit Error");
-        }
-
-        memset(recvbuf, 0, 32);
-    }
+    /* SPI Communication Initialization Sequence */
+    ESP_LOGI(TAG, "Initializing SPI Communication");
+    spi_secondary_init();
+    
+    ESP_LOGI(TAG, "Setup Complete");
+    return 0;
 }
 
 void app_main(void)
 {
-    // Run blink task and spi slave task concurrently
-    xTaskCreate(blink_task, "blink_task", 2048, NULL, 5, NULL);
-    xTaskCreate(spi_slave_task, "spi_slave_task", 4096, NULL, 5, NULL);
+    ESP_LOGI(TAG, "Starting application...");
+    if (setup() != 0) {
+        ESP_LOGE(TAG, "Setup failed. Restarting");
+        vTaskDelay(200);
+        esp_restart();
+    }
+    
+    // Main idle loop or competition logic placeholder
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }
