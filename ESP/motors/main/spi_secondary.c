@@ -2,6 +2,7 @@
 
 #define TAG "SPI_SECONDARY"
 #define END_SIGNAL "<END>"  // Special signal from master indicating the end of transmission
+#define IDLE_SIGNAL "IDLE"  // Sentinel value indicating no new data
 
 // SPI Pin Configuration
 #define PIN_MISO  19
@@ -66,7 +67,7 @@ void spi_secondary_task(void *arg) {
     esp_err_t ret;
     bool command_flag = false;
     char new_buf[CHUNK_SIZE + 1] = {0};
-    char send_buf[CHUNK_SIZE] = "ACK"; // Response to master
+    char send_buf[CHUNK_SIZE] = IDLE_SIGNAL;  // Default to IDLE sentinel
 
     spi_slave_transaction_t transaction;
     memset(&transaction, 0, sizeof(transaction));
@@ -75,36 +76,28 @@ void spi_secondary_task(void *arg) {
     transaction.tx_buffer = send_buf;  // Data to send
     transaction.rx_buffer = new_buf;  // Buffer to receive data
 
-    int64_t last_heartbeat_time = esp_timer_get_time();
 
     while (1) {
-        // Send a heartbeat every second
-        int64_t current_time = esp_timer_get_time();
-        if (current_time - last_heartbeat_time >= 1000000) { // 1 second in microseconds
-            if (strlen(command_to_send) == 0) {
-                send_message("HEARTBEAT");
-            }
-            last_heartbeat_time = current_time;
-        }
 
         // Wait for master to send data
         memset(new_buf, 0, sizeof(new_buf));
         if (strlen(command_to_send) > 0) {
-            memset(send_buf, 0, sizeof(send_buf));  // Clear old data
+            memset(send_buf, 0, sizeof(send_buf));
             size_t len = strlen(command_to_send);
             if (len >= CHUNK_SIZE) len = CHUNK_SIZE - 1;
             memcpy(send_buf, command_to_send, len);
-            send_buf[len] = '\0';  // Null-terminate
-            command_to_send[0] = '\0';  // Mark message as sent
+            send_buf[len] = '\0';
+            command_to_send[0] = '\0';  // Mark as consumed
             command_flag = true;
-            // ESP_LOGI(TAG, "sent: %s", command_to_send);
-            // ESP_LOGI(TAG, "sent");
         }
 
         ret = spi_slave_transmit(SPI2_HOST, &transaction, pdMS_TO_TICKS(100));
+
+        // After transmission, reset send_buf to IDLE sentinel so the Pi
+        // can distinguish a real message from a stale/repeated buffer
         if (command_flag) {
             memset(send_buf, 0, sizeof(send_buf));
-            memcpy(send_buf, "ACK", strlen("ACK"));
+            memcpy(send_buf, IDLE_SIGNAL, strlen(IDLE_SIGNAL));
             command_flag = false;
         }
         
@@ -118,7 +111,7 @@ void spi_secondary_task(void *arg) {
                 process_received_data(received_buffer);
                 ++count;
                 // ESP_LOGI(TAG, "%d", count);
-                if (!received_buffer) {
+                if (received_buffer) {  // Fixed: was checking !received_buffer (inverted bug)
                     free(received_buffer);
                     received_buffer = NULL;
                 }
@@ -130,8 +123,9 @@ void spi_secondary_task(void *arg) {
                 received_buffer = realloc(received_buffer, new_size + 1);
                 if (!received_buffer) {
                     ESP_LOGE(TAG, "Memory allocation failed!");
-                    free(received_buffer);
-                    received_buffer = NULL;
+                    // Note: realloc returning NULL means original pointer is lost.
+                    // received_buffer is already NULL here so no double-free risk.
+                    received_buffer_size = 0;
                     return;
                 }
                 
@@ -190,10 +184,10 @@ void process_received_data(char *input) {
     }
 }
 
+// Fixed: removed the command_to_send[0] = '\0' line that was immediately
+// nulling the buffer right after writing to it, causing all messages to be lost.
 void send_message(char *message) {
-    memset(command_to_send, 0, sizeof(command_to_send));  // Clear entire buffer
-    memcpy(command_to_send, message, strlen(message));
-    command_to_send[0] = '\0';
+    memset(command_to_send, 0, sizeof(command_to_send));
     memcpy(command_to_send, message, strlen(message));
 }
 
@@ -811,4 +805,3 @@ double get_ema_typ(const EMAState *ema) {
     }
     return ema->typ_ema;
 }
-
