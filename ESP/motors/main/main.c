@@ -94,8 +94,14 @@ void app_main(void)
         esp_restart();
     }
     
-    // Main idle loop or competition logic placeholder
+    // --- MOTOR TEST CODE START ---
+    // Testing all 4 motors slowly (1s on, 1s off)
+    ESP_LOGI(TAG, "Running motor test (1s on, 1s off)");
     while (1) {
+        perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 20.0);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
+    // --- MOTOR TEST CODE END ---
 }
