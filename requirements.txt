@@ -1,4 +1,5 @@
 pyserial
 numpy
+RPi.GPIO
 # picamera  # Uncomment if running on Pi with specific hardware
 # opencv-python # Uncomment if using OpenCV strategy
