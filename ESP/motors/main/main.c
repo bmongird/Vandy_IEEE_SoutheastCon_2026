@@ -88,9 +88,51 @@ int setup() {
 typedef enum {
     IDLE,
     DUCKS,
-    ANTENNA1,
+    ANTENNA,
     END
 } state_t;
+
+void run_antenna_path()
+{
+    const int turn_time = 700;
+    const int move_time = 1500;
+
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(turn_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(move_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(turn_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(move_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(turn_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(move_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(move_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(turn_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+}
 
 void app_main(void)
 {
@@ -123,7 +165,7 @@ void app_main(void)
                     state_executed = false;
                     ESP_LOGI(TAG, "State transition via SPI: DUCKS");
                 } else if (strcmp(msg, "ANTENNA1") == 0) {
-                    currentState = ANTENNA1;
+                    currentState = ANTENNA;
                     state_executed = false;
                     ESP_LOGI(TAG, "State transition via SPI: ANTENNA1");
                 } else if (strcmp(msg, "END") == 0) {
@@ -160,11 +202,11 @@ void app_main(void)
                 }
                 break;
                 
-            case ANTENNA1:
+            case ANTENNA:
                 if (!state_executed) {
                     ESP_LOGI(TAG, "Executing state: ANTENNA1");
                     // TODO: Implement abstract ANTENNA1 state logic
-                    // move_to_antenna1();
+                    run_antenna_path();
                     
                     // Simulate long running function
                     vTaskDelay(pdMS_TO_TICKS(1000));
