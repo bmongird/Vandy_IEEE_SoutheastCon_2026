@@ -1,5 +1,6 @@
-pyserial
-numpy
-RPi.GPIO
-# picamera  # Uncomment if running on Pi with specific hardware
-# opencv-python # Uncomment if using OpenCV strategy
+numpy==2.4.2
+pigpio==1.78
+pyserial==3.5
+RPi.GPIO==0.7.1
+setuptools==82.0.1
+spidev==3.8
