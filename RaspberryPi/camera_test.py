@@ -11,7 +11,7 @@ def main():
         while True:
             # We use a shorter timeout for the infinite loop test
             # so it responds more quickly to changes/no-detection
-            result = detect_led_color(timeout_seconds=2.0)
+            result = detect_led_color(timeout_seconds=5.0)
             print(f"[{time.strftime('%H:%M:%S')}] Detected Color: {result}")
             
             # Small delay between checks

@@ -16,7 +16,7 @@ except ImportError:
 ROI_X_MIN = 130
 ROI_X_MAX = 190
 ROI_Y_MIN = 10
-ROI_Y_MAX = 30
+ROI_Y_MAX = 40
 
 # ---- Signature-to-Color Mapping ----
 # 1=green, 2=red, 3=blue, 4=purple
@@ -43,6 +43,36 @@ def get_best_block(roi_blocks):
         return None
     return max(roi_blocks, key=lambda b: b.m_width * b.m_height)
 
+# module‑level initialization state ------------------------------------------------
+_pixy_initialized = False
+_pixy_init_result = None
+
+
+def _ensure_pixy_initialized() -> int:
+    """Make sure the Pixy2 library is initialized exactly once.
+
+    Returns:
+        The value returned by ``pixy.init()`` (0 on success, negative on
+        failure).  Subsequent calls return the original result without
+        re‑initializing the camera.
+    """
+    global _pixy_initialized, _pixy_init_result
+    if _pixy_initialized:
+        return _pixy_init_result
+
+    _pixy_init_result = pixy.init()
+    _pixy_initialized = True
+    if _pixy_init_result < 0:
+        logging.error(f"Pixy2 initialization failed with code {_pixy_init_result}")
+    else:
+        # set CCC program once
+        try:
+            pixy.change_prog("color_connected_components")
+        except Exception as exc:  # pragma: no cover - pixy is C extension
+            logging.warning(f"couldn't set CCC program during init: {exc}")
+    return _pixy_init_result
+
+
 def detect_led_color(timeout_seconds: float = 5.0) -> str:
     """
     Attempts to read the LED color from the Pixy2 camera within the specified timeout.
@@ -57,16 +87,14 @@ def detect_led_color(timeout_seconds: float = 5.0) -> str:
     if not PIXY_AVAILABLE:
         logging.error("Cannot use detect_led_color: pixy library unavailable. Returning 'F'.")
         return 'F'
-        
+
     start_time = time.time()
     
-    # Initialize Pixy2
-    # pixy.init() returns 0 on success, < 0 on error
-    init_res = pixy.init()
+    # initialize once; subsequent invocations will be no-ops
+    init_res = _ensure_pixy_initialized()
     if init_res < 0:
-        logging.error(f"Pixy2 initialization failed with code {init_res}. Returning 'F'.")
         return 'F'
-        
+
     # Change program to Color Connected Components (CCC) mode
     pixy.change_prog("color_connected_components")
     
