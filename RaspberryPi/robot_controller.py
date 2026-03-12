@@ -1,6 +1,8 @@
 from core.state_machine import StateMachine
 from subsystems.drivetrain import DriveTrain
 from subsystems.vision import VisionSystem
+from subsystems.lcd_subsystem import LCDSubsystem
+import time
 
 class RobotController(StateMachine):
     """
@@ -12,7 +14,12 @@ class RobotController(StateMachine):
         # Initialize hardware components
         self.drive = DriveTrain()
         self.vision = VisionSystem()
+        self.lcd = LCDSubsystem()
         self.initialize_hardware()
+
+        # Initialize base state behavior
+        from states.idle import IdleState
+        self.change_state(IdleState(self))
         
     def initialize_hardware(self):
         """
@@ -29,6 +36,7 @@ class RobotController(StateMachine):
         try:
             while True:
                 self.update()
+                time.sleep(0.05)
                 # Example global check: Print vision status periodically
                 # target = self.vision.get_latest_target()
                 # if target.valid:
@@ -46,6 +54,7 @@ class RobotController(StateMachine):
         print("Cleaning up resources...")
         self.drive.stop()
         self.vision.stop()
+        self.lcd.stop()
 
 if __name__ == "__main__":
     robot = RobotController()
