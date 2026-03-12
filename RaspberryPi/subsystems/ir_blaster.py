@@ -108,7 +108,7 @@ def test_all_combinations(pin):
             command = ant_code | color_code
             print(f"  {ant_name} + {color_name:6s}  ->  command=0x{command:02X}", end="  ... ", flush=True)
             send_nec(pin, NEC_ADDRESS, command)
-            time.sleep(0.1)
+            time.sleep(10)
             print("sent")
 
 def test_invalid_color(pin):

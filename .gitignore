@@ -135,6 +135,9 @@ docs/_build/
 profile_default/
 ipython_config.py
 
+# Pixy2 sourc
+pixy2/
+
 # Environments
 .env
 .venv
@@ -177,3 +180,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Subsystems
+/RaspberryPi/subsystems/pigpio/
+/RaspberryPi/subsystems/pigpio-master/
