@@ -2,7 +2,6 @@
 
 #define TAG "SPI_SECONDARY"
 #define END_SIGNAL "<END>"  // Special signal from master indicating the end of transmission
-#define IDLE_SIGNAL "IDLE"  // Sentinel value indicating no new data
 
 // SPI Pin Configuration
 #define PIN_MISO  19
@@ -67,7 +66,7 @@ void spi_secondary_task(void *arg) {
     esp_err_t ret;
     bool command_flag = false;
     char new_buf[CHUNK_SIZE + 1] = {0};
-    char send_buf[CHUNK_SIZE] = IDLE_SIGNAL;  // Default to IDLE sentinel
+    char send_buf[CHUNK_SIZE] = "ACK"; // Response to master
 
     spi_slave_transaction_t transaction;
     memset(&transaction, 0, sizeof(transaction));
@@ -76,28 +75,25 @@ void spi_secondary_task(void *arg) {
     transaction.tx_buffer = send_buf;  // Data to send
     transaction.rx_buffer = new_buf;  // Buffer to receive data
 
-
     while (1) {
-
         // Wait for master to send data
         memset(new_buf, 0, sizeof(new_buf));
         if (strlen(command_to_send) > 0) {
-            memset(send_buf, 0, sizeof(send_buf));
+            memset(send_buf, 0, sizeof(send_buf));  // Clear old data
             size_t len = strlen(command_to_send);
             if (len >= CHUNK_SIZE) len = CHUNK_SIZE - 1;
             memcpy(send_buf, command_to_send, len);
-            send_buf[len] = '\0';
-            command_to_send[0] = '\0';  // Mark as consumed
+            send_buf[len] = '\0';  // Null-terminate
+            command_to_send[0] = '\0';  // Mark message as sent
             command_flag = true;
+            // ESP_LOGI(TAG, "sent: %s", command_to_send);
+            // ESP_LOGI(TAG, "sent");
         }
 
         ret = spi_slave_transmit(SPI2_HOST, &transaction, pdMS_TO_TICKS(100));
-
-        // After transmission, reset send_buf to IDLE sentinel so the Pi
-        // can distinguish a real message from a stale/repeated buffer
         if (command_flag) {
             memset(send_buf, 0, sizeof(send_buf));
-            memcpy(send_buf, IDLE_SIGNAL, strlen(IDLE_SIGNAL));
+            memcpy(send_buf, "ACK", strlen("ACK"));
             command_flag = false;
         }
         
@@ -111,7 +107,7 @@ void spi_secondary_task(void *arg) {
                 process_received_data(received_buffer);
                 ++count;
                 // ESP_LOGI(TAG, "%d", count);
-                if (received_buffer) {  // Fixed: was checking !received_buffer (inverted bug)
+                if (received_buffer) {
                     free(received_buffer);
                     received_buffer = NULL;
                 }
@@ -120,14 +116,15 @@ void spi_secondary_task(void *arg) {
 
                 int new_size = received_buffer_size + strlen(new_buf);
 
-                received_buffer = realloc(received_buffer, new_size + 1);
-                if (!received_buffer) {
+                char *temp = realloc(received_buffer, new_size + 1);
+                if (!temp) {
                     ESP_LOGE(TAG, "Memory allocation failed!");
-                    // Note: realloc returning NULL means original pointer is lost.
-                    // received_buffer is already NULL here so no double-free risk.
+                    free(received_buffer);
+                    received_buffer = NULL;
                     received_buffer_size = 0;
                     return;
                 }
+                received_buffer = temp;
                 
                 memcpy(received_buffer + received_buffer_size, new_buf, strlen(new_buf));
                 received_buffer_size = new_size;
@@ -184,8 +181,6 @@ void process_received_data(char *input) {
     }
 }
 
-// Fixed: removed the command_to_send[0] = '\0' line that was immediately
-// nulling the buffer right after writing to it, causing all messages to be lost.
 void send_message(char *message) {
     memset(command_to_send, 0, sizeof(command_to_send));
     memcpy(command_to_send, message, strlen(message));
@@ -805,3 +800,4 @@ double get_ema_typ(const EMAState *ema) {
     }
     return ema->typ_ema;
 }
+

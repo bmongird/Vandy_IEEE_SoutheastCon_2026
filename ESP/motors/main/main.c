@@ -85,6 +85,13 @@ int setup() {
     return 0;
 }
 
+typedef enum {
+    IDLE,
+    DUCKS,
+    ANTENNA1,
+    END
+} state_t;
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Starting application...");
@@ -94,14 +101,89 @@ void app_main(void)
         esp_restart();
     }
     
-    // --- MOTOR TEST CODE START ---
-    // Testing all 4 motors slowly (1s on, 1s off)
-    ESP_LOGI(TAG, "Running motor test (1s on, 1s off)");
-    while (1) {
-        perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 20.0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    state_t currentState = IDLE;
+    char last_msg[32] = "";
+    int loop_counter = 0;
+    bool state_executed = false; // Prevents re-executing long functions
+
+    while(currentState != END) {
+        // Read SPI message to handle State Updates
+        char* msg = get_message();
+        if (msg != NULL) {
+            if (strcmp(msg, last_msg) != 0) {
+                // New message received
+                strncpy(last_msg, msg, sizeof(last_msg) - 1);
+                
+                if (strcmp(msg, "IDLE") == 0) {
+                    currentState = IDLE;
+                    state_executed = false;
+                    ESP_LOGI(TAG, "State transition via SPI: IDLE");
+                } else if (strcmp(msg, "DUCKS") == 0) {
+                    currentState = DUCKS;
+                    state_executed = false;
+                    ESP_LOGI(TAG, "State transition via SPI: DUCKS");
+                } else if (strcmp(msg, "ANTENNA1") == 0) {
+                    currentState = ANTENNA1;
+                    state_executed = false;
+                    ESP_LOGI(TAG, "State transition via SPI: ANTENNA1");
+                } else if (strcmp(msg, "END") == 0) {
+                    currentState = END;
+                    state_executed = false;
+                    ESP_LOGI(TAG, "State transition via SPI: END");
+                }
+            }
+        }
+
+        switch (currentState) {
+            case IDLE:
+                if (loop_counter % 10 == 0) {
+                    ESP_LOGI(TAG, "Executing state: IDLE");
+                }
+                perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+                vTaskDelay(pdMS_TO_TICKS(100));
+                break;
+                
+            case DUCKS:
+                if (!state_executed) {
+                    ESP_LOGI(TAG, "Executing state: DUCKS");
+                    // TODO: Implement abstract DUCKS state logic
+                    // move_to_ducks();
+                    
+                    // Simulate long running function
+                    vTaskDelay(pdMS_TO_TICKS(1000)); 
+                    
+                    send_message("DUCKS_DONE");
+                    state_executed = true; // Mark done
+                    
+                    // Transition to IDLE while waiting for next PI command
+                    currentState = IDLE; 
+                }
+                break;
+                
+            case ANTENNA1:
+                if (!state_executed) {
+                    ESP_LOGI(TAG, "Executing state: ANTENNA1");
+                    // TODO: Implement abstract ANTENNA1 state logic
+                    // move_to_antenna1();
+                    
+                    // Simulate long running function
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    
+                    send_message("ANTENNA1_DONE");
+                    state_executed = true; // Mark done
+                    
+                    // Transition to IDLE while waiting for next PI command
+                    currentState = IDLE; 
+                }
+                break;
+                
+            case END:
+                break;
+        }
+        loop_counter++;
     }
-    // --- MOTOR TEST CODE END ---
+    
+    // Stop all motors on exit
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    ESP_LOGI(TAG, "Program complete");
 }
