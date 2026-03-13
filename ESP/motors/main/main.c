@@ -196,36 +196,34 @@ void app_main(void)
         esp_restart();
     }
     
-    state_t currentState = ANTENNA;
-    char last_msg[32] = "";
+    state_t currentState = IDLE;
+    uint8_t last_cmd = STATE_IDLE;
     int loop_counter = 0;
     bool state_executed = false; // Prevents re-executing long functions
 
     while(currentState != END) {
-        // Read SPI message to handle State Updates
-        char* msg = get_message();
-        if (msg != NULL) {
-            if (strcmp(msg, last_msg) != 0) {
-                // New message received
-                strncpy(last_msg, msg, sizeof(last_msg) - 1);
-                
-                if (strcmp(msg, "IDLE") == 0) {
+        // Read state command from SPI (binary protocol)
+        uint8_t cmd = get_current_command();
+        if (cmd != last_cmd) {
+            last_cmd = cmd;
+            state_executed = false;
+
+            switch (cmd) {
+                case STATE_IDLE:
                     currentState = IDLE;
-                    state_executed = false;
                     ESP_LOGI(TAG, "State transition via SPI: IDLE");
-                } else if (strcmp(msg, "DUCKS") == 0) {
+                    break;
+                case STATE_DUCKS:
                     currentState = DUCKS;
-                    state_executed = false;
                     ESP_LOGI(TAG, "State transition via SPI: DUCKS");
-                } else if (strcmp(msg, "ANTENNA1") == 0) {
+                    break;
+                case STATE_ANTENNA:
                     currentState = ANTENNA;
-                    state_executed = false;
-                    ESP_LOGI(TAG, "State transition via SPI: ANTENNA1");
-                } else if (strcmp(msg, "END") == 0) {
-                    currentState = END;
-                    state_executed = false;
-                    ESP_LOGI(TAG, "State transition via SPI: END");
-                }
+                    ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
+                    break;
+                default:
+                    ESP_LOGW(TAG, "Unknown state code: 0x%02X", cmd);
+                    break;
             }
         }
 
@@ -258,27 +256,26 @@ void app_main(void)
                     // Simulate long running function
                     vTaskDelay(pdMS_TO_TICKS(1000)); 
                     
-                    send_message("DUCKS_DONE");
+                    report_state_complete();
                     state_executed = true; // Mark done
                     
-                    // Transition to IDLE while waiting for next PI command
+                    // Transition to IDLE while waiting for next Pi command
                     currentState = IDLE; 
                 }
                 break;
                 
             case ANTENNA:
                 if (!state_executed) {
-                    ESP_LOGI(TAG, "Executing state: ANTENNA1");
-                    // TODO: Implement abstract ANTENNA1 state logic
+                    ESP_LOGI(TAG, "Executing state: ANTENNA");
                     run_antenna_path();
                     
                     // Simulate long running function
                     vTaskDelay(pdMS_TO_TICKS(1000));
                     
-                    send_message("ANTENNA1_DONE");
+                    report_state_complete();
                     state_executed = true; // Mark done
                     
-                    // Transition to IDLE while waiting for next PI command
+                    // Transition to IDLE while waiting for next Pi command
                     currentState = IDLE; 
                 }
                 break;

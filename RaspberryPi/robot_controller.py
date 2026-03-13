@@ -2,12 +2,15 @@ from core.state_machine import StateMachine
 from subsystems.drivetrain import DriveTrain
 from subsystems.vision import VisionSystem
 from subsystems.lcd_subsystem import LCDSubsystem
+from subsystems.esp_comm import ESPCommunicator
+from subsystems.keyboard_input import KeyboardInput
+from subsystems.pushbutton import Pushbutton
 import time
 
 class RobotController(StateMachine):
     """
     Top-level controller for the robot, inheriting from StateMachine.
-    Manages subsystems (DriveTrain, Vision).
+    Manages subsystems (DriveTrain, Vision, ESP, Keyboard, Pushbutton).
     """
     def __init__(self):
         super().__init__()
@@ -15,11 +18,14 @@ class RobotController(StateMachine):
         self.drive = DriveTrain()
         self.vision = VisionSystem()
         self.lcd = LCDSubsystem()
+        self.esp_comm = ESPCommunicator()
+        self.keyboard = KeyboardInput()
+        self.pushbutton = Pushbutton(pin=22)
         self.initialize_hardware()
 
-        # Initialize base state behavior
-        from states.idle import IdleState
-        self.change_state(IdleState(self))
+        # Start in the Master Idle state
+        from states.master_idle import MasterIdleState
+        self.change_state(MasterIdleState(self))
         
     def initialize_hardware(self):
         """
@@ -55,6 +61,7 @@ class RobotController(StateMachine):
         self.drive.stop()
         self.vision.stop()
         self.lcd.stop()
+        self.esp_comm.close()
 
 if __name__ == "__main__":
     robot = RobotController()

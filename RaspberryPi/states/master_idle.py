@@ -24,8 +24,8 @@ class MasterIdleState(State):
     def update(self):
         # Poll the pushbutton and keyboard to trigger the transition to DUCKS
         key = self.controller.keyboard.get_key()
-        # if self.controller.pushbutton.is_pressed() or (key and key.lower() == 'e'):
-        if key and key.lower() == 'e':
+        if self.controller.pushbutton.is_pressed() or (key and key.lower() == 'e'):
+        # if key and key.lower() == 'e':
             self.logger.info("Pushbutton or 'e' key pressed. Transitioning to DUCKS.")
             self.next_state = "DUCKS"
 
