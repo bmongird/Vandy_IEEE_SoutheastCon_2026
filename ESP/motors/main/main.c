@@ -120,6 +120,15 @@ typedef enum {
     END
 } state_t;
 
+void antenna1_action() {
+    //antenna 1 logic with servos
+    dc_set_speed(&robot_singleton.eliServo1, 100);//Need to adjust depending on how long it takes to reach full extension
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    dc_set_speed(&robot_singleton.eliServo1, -100);//Same here
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    dc_set_speed(&robot_singleton.eliServo1, 0);
+}
+
 void run_antenna_path()
 {
     const int turn_time = 700;
@@ -177,14 +186,6 @@ void run_antenna_path()
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
 }
 
-void antenna1_action() {
-    //antenna 1 logic with servos
-    dc_set_speed(&robot_singleton.eliServo1, 100);//Need to adjust depending on how long it takes to reach full extension
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    dc_set_speed(&robot_singleton.eliServo1, -100);//Same here
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    dc_set_speed(&robot_singleton.eliServo1, 0);
-}
 
 void app_main(void)
 {
