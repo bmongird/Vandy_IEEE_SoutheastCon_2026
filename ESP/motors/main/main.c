@@ -20,6 +20,7 @@ typedef struct {
     motor_t backLeft;
     motor_t eliServo1; //idk what u wanna name these
     motor_t eliServo2;
+    motor_t eliServo3;
     motor_t lazyTong;
 
     motor_t *omniMotors;    /* An array of the four maneuver DC motors*/
@@ -38,6 +39,7 @@ void full_motor_init() {
     motor_t backRight =     { .pwm_pin = 32,    .group_id = 0, .timer_id = 1, .oper_id = 1, .type = DC_MOTOR };
     motor_t eliServo1 =   { .pwm_pin = 33,    .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
     motor_t eliServo2 =  { .pwm_pin = 4,     .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
+    motor_t eliServo3 =  { .pwm_pin = 7,     .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
     motor_t lazyTong =      { .pwm_pin = 27,    .group_id = 1, .timer_id = 0, .oper_id = 0, .type = SERVO_MOTOR };
 
     motor_control_init(&frontLeft);
@@ -46,6 +48,7 @@ void full_motor_init() {
     motor_control_init(&backLeft);
     motor_control_init(&eliServo1);
     motor_control_init(&eliServo2);
+    motor_control_init(&eliServo3);
     motor_control_init(&lazyTong);
 
     robot_singleton.frontLeft = frontLeft;
@@ -54,6 +57,7 @@ void full_motor_init() {
     robot_singleton.backRight = backRight;
     robot_singleton.eliServo1 = eliServo1;
     robot_singleton.eliServo2 = eliServo2;
+    robot_singleton.eliServo3 = eliServo3;
     robot_singleton.lazyTong = lazyTong;
     robot_singleton.omniMotors[0] = frontRight;
     robot_singleton.omniMotors[1] = frontLeft;
@@ -62,6 +66,7 @@ void full_motor_init() {
 
     dc_set_speed(&robot_singleton.eliServo1, 0);
     dc_set_speed(&robot_singleton.eliServo2, 0);
+    dc_set_speed(&robot_singleton.eliServo3, 0);
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     servo_set_angle(&robot_singleton.lazyTong, 240);
     
@@ -104,7 +109,7 @@ void run_antenna_path()
     perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
-
+    antenna1_action();
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
@@ -123,15 +128,34 @@ void run_antenna_path()
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
 
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(turn_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(move_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    //Antenna 2 reached, simulate outtake
+
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    //Antenna 3 reached, simulate outtake
 
     perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+}
+
+void antenna1_action() {
+    //antenna 1 logic with servos
+    dc_set_speed(&robot_singleton.eliServo1, 100);//Need to adjust depending on how long it takes to reach full extension
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    dc_set_speed(&robot_singleton.eliServo1, -100);//Same here
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    dc_set_speed(&robot_singleton.eliServo1, 0);
 }
 
 void app_main(void)
