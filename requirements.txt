@@ -1,6 +1,8 @@
+evdev==1.9.3
 numpy==2.4.2
 pigpio==1.78
 pyserial==3.5
 RPi.GPIO==0.7.1
 setuptools==82.0.1
+smbus2==0.6.0
 spidev==3.8
