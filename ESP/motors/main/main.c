@@ -9,8 +9,18 @@
 #include "motor.h"
 #include "spi_secondary.h"
 #include "pid.h"
+#include "encoder.h"
 
 #define TAG "MOTORS_MAIN"
+
+// ── Encoder config ──────────────────────────────────────────────
+// Using input-only GPIOs to avoid conflicts with motor PWM pins
+#define ENC_PIN_A      GPIO_NUM_34
+#define ENC_PIN_B      GPIO_NUM_35
+#define ENC_PIN_INDEX  GPIO_NUM_36
+#define ENC_PIN_ABS    GPIO_NUM_39
+
+through_bore_encoder_t encoder;
 
 // Mimicking the robot structure from IEEE_Hardware_Competition_2025
 typedef struct {
@@ -77,6 +87,19 @@ int setup() {
     // Give it a brief moment
     vTaskDelay(pdMS_TO_TICKS(500));
 
+    /* Encoder Initialization */
+    ESP_LOGI(TAG, "Initializing Through Bore Encoder");
+    encoder = (through_bore_encoder_t){
+        .pin_a     = ENC_PIN_A,
+        .pin_b     = ENC_PIN_B,
+        .pin_index = ENC_PIN_INDEX,
+        .pin_abs   = ENC_PIN_ABS,
+    };
+    if (tbe_init(&encoder) != ESP_OK) {
+        ESP_LOGE(TAG, "Encoder init failed!");
+        return -1;
+    }
+
     /* SPI Communication Initialization Sequence */
     ESP_LOGI(TAG, "Initializing SPI Communication");
     spi_secondary_init();
@@ -100,34 +123,37 @@ void run_antenna_path()
     perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
-
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
-
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
-    vTaskDelay(pdMS_TO_TICKS(move_time));
-    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
-
-    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
-    vTaskDelay(pdMS_TO_TICKS(turn_time));
-    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
-
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
-    vTaskDelay(pdMS_TO_TICKS(move_time));
-    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
-
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(turn_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(move_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    vTaskDelay(pdMS_TO_TICKS(move_time));
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
@@ -143,7 +169,7 @@ void app_main(void)
         esp_restart();
     }
     
-    state_t currentState = IDLE;
+    state_t currentState = ANTENNA;
     char last_msg[32] = "";
     int loop_counter = 0;
     bool state_executed = false; // Prevents re-executing long functions
@@ -174,6 +200,17 @@ void app_main(void)
                     ESP_LOGI(TAG, "State transition via SPI: END");
                 }
             }
+        }
+
+        // ── Print encoder distance every 10 loops ──────────────
+        if (loop_counter % 10 == 0) {
+            int64_t counts = tbe_get_count(&encoder);
+            float distance_mm = (float)counts / (float)TBE_COUNTS_PER_REV * WHEEL_CIRCUMFERENCE_MM;
+            float revs = tbe_get_revolutions(&encoder);
+            float abs_deg = tbe_get_abs_angle(&encoder);
+
+            ESP_LOGI(TAG, "ENC | dist: %.1f mm | counts: %lld | revs: %.2f | abs: %.1f°",
+                     distance_mm, (long long)counts, revs, abs_deg);
         }
 
         switch (currentState) {

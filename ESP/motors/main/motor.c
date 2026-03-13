@@ -114,7 +114,7 @@ void dc_set_speed(motor_t *motor, float speed) {
     mcpwm_comparator_set_compare_value(motor->comparator, (uint32_t)pulse_width);
  
     // ESP_LOGI("MOTOR", "Motor speed set: pin %d, pulse %dus (speed %.2f)",
-            //  motor->pwm_pin, (int)pulse_width, speed);
+    //          motor->pwm_pin, (int)pulse_width, speed);
 }
  
  
@@ -264,3 +264,38 @@ void rotate_angle_hardcode(motor_t *motors, maneuver_t maneuver, float speed_sca
     perform_maneuver(motors, STOP, NULL, 0); 
 }
 
+void move_distance_encoder(motor_t *motors, maneuver_t maneuver, float speed_scalar, double distance_mm, through_bore_encoder_t *enc) {
+    if (maneuver != FORWARD && maneuver != BACKWARD && maneuver != LEFT && maneuver != RIGHT) {
+        ESP_LOGE(TAG, "Maneuver not supported by move_distance_encoder");
+        return;
+    }
+
+    tbe_reset(enc);
+    vTaskDelay(pdMS_TO_TICKS(10)); // Allow encoder reset to take effect
+    int64_t start_count = tbe_get_count(enc);
+    
+    // Stop 10mm early to account for momentum
+    double effective_target_mm = distance_mm - 10.0;
+    if (effective_target_mm < 0) {
+        effective_target_mm = 0;
+    }
+
+    while (true) {
+        int64_t current_count = tbe_get_count(enc);
+        int64_t diff = current_count - start_count;
+        if (diff < 0) {
+            diff = -diff; // absolute distance
+        }
+
+        float distance_traveled_mm = (float)diff / (float)TBE_COUNTS_PER_REV * WHEEL_CIRCUMFERENCE_MM;
+
+        if (distance_traveled_mm >= effective_target_mm) {
+            break;
+        }
+
+        perform_maneuver(motors, maneuver, NULL, speed_scalar);
+        vTaskDelay(pdMS_TO_TICKS(10)); // Small delay to yield to other tasks
+    }
+    
+    perform_maneuver(motors, STOP, NULL, 0);
+}

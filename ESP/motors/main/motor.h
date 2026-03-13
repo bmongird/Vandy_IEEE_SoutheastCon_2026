@@ -20,6 +20,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "pid.h"      // Include PID header for PID control
+#include "encoder.h"  // Include encoder header for encoder-based movements
  
  /**
   * @brief Enumeration for the different motor types
@@ -115,5 +116,7 @@ void init_motor_resources();
  void move_distance_hardcode(motor_t *motors, maneuver_t maneuver, float speed_scalar, double feet);
 
  void rotate_angle_hardcode(motor_t * motors, maneuver_t direction, float speed_scalar, int degrees);
+
+ void move_distance_encoder(motor_t *motors, maneuver_t maneuver, float speed_scalar, double distance_mm, through_bore_encoder_t *enc);
 
  #endif // MOTOR_H
