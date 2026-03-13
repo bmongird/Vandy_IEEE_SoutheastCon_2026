@@ -135,6 +135,7 @@ void run_antenna_path()
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     antenna1_action();
     vTaskDelay(pdMS_TO_TICKS(1000));
+    antenna1_action();
 
     perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 50);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
