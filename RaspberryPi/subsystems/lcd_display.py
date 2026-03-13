@@ -231,10 +231,19 @@ class AntennaDisplay:
     # -- internal -----------------------------------------------------------
 
     def _format_line(self, antenna: int) -> str:
-        """Return a 16-char display line like 'ANTENNA 1: R    '."""
+        """Return a 16-char display line like 'ANTENNA 1: RED  '."""
         with self._lock:
             color = self._colors[antenna]
-        return f"ANTENNA {antenna}: {color}"
+            
+        color_map = {
+            "R": "RED",
+            "G": "GRE",
+            "B": "BLU",
+            "P": "PUR",
+            "N": "OFF"
+        }
+        display_color = color_map.get(color, color)
+        return f"ANTENNA {antenna}: {display_color}"
 
     def _loop(self) -> None:
         """Cycle between pages of two antennas every CYCLE_INTERVAL seconds."""
