@@ -125,12 +125,12 @@ void run_antenna_path()
     const int turn_time = 700;
     const int move_time = 1500;
 
-    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 40);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 10);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     antenna1_action();
@@ -142,17 +142,17 @@ void run_antenna_path()
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 10);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 40);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 10);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
 
@@ -160,14 +160,14 @@ void run_antenna_path()
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 5);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     //Antenna 2 reached, simulate outtake
 
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 5);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     //Antenna 3 reached, simulate outtake
