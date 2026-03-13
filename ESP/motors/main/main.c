@@ -120,17 +120,26 @@ typedef enum {
     END
 } state_t;
 
+void antenna1_action() {
+    //antenna 1 logic with servos
+    dc_set_speed(&robot_singleton.eliServo1, 100);//Need to adjust depending on how long it takes to reach full extension
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    dc_set_speed(&robot_singleton.eliServo1, -100);//Same here
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    dc_set_speed(&robot_singleton.eliServo1, 0);
+}
+
 void run_antenna_path()
 {
     const int turn_time = 700;
     const int move_time = 1500;
 
-    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 40);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 10);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     antenna1_action();
@@ -142,17 +151,17 @@ void run_antenna_path()
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 10);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 40);
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 10);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
 
@@ -160,14 +169,14 @@ void run_antenna_path()
     vTaskDelay(pdMS_TO_TICKS(turn_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 5);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     //Antenna 2 reached, simulate outtake
 
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 50);
+    perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 5);
     vTaskDelay(pdMS_TO_TICKS(move_time));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     //Antenna 3 reached, simulate outtake
@@ -177,14 +186,6 @@ void run_antenna_path()
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
 }
 
-void antenna1_action() {
-    //antenna 1 logic with servos
-    dc_set_speed(&robot_singleton.eliServo1, 100);//Need to adjust depending on how long it takes to reach full extension
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    dc_set_speed(&robot_singleton.eliServo1, -100);//Same here
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    dc_set_speed(&robot_singleton.eliServo1, 0);
-}
 
 void app_main(void)
 {
