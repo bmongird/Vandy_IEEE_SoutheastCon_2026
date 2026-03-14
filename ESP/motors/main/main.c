@@ -331,7 +331,7 @@ void app_main(void)
                     state_executed = true; // Mark done
                     
                     // Transition to IDLE while waiting for next Pi command
-                    currentState = ANTENNA3; 
+                    currentState = ANTENNA4; 
                 }
                 break;
             case ANTENNA4:
