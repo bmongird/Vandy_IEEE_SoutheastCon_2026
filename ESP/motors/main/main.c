@@ -155,11 +155,11 @@ void antenna2_action()
 
 void antenna4_action()
 {
-    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 0.5, 228, encoder);
+    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 0.5, 228, &encoder);
     vTaskDelay(pdMS_TO_TICKS(2000));
-    move_distance_encoder(robot_singleton.omniMotors, LEFT, 0.5, 762, encoder);
+    move_distance_encoder(robot_singleton.omniMotors, LEFT, 0.5, 762, &encoder);
     vTaskDelay(pdMS_TO_TICKS(2000));
-    move_distance_encoder(robot_singleton.omniMotors, FORWARD, 0.5, 25, encoder);
+    move_distance_encoder(robot_singleton.omniMotors, FORWARD, 0.5, 25, &encoder);
     vTaskDelay(pdMS_TO_TICKS(2000));
     
     
