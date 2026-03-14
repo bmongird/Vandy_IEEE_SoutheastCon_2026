@@ -165,7 +165,7 @@ void antenna1_action() {
                         &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL,
-                   40);
+                   38);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -235,6 +235,9 @@ void antenna4_action() {
   move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 762, &encoder1);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 25);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL,
+                   21);
   vTaskDelay(pdMS_TO_TICKS(2000));
   move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 50, &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -330,7 +333,19 @@ void app_main(void) {
 
   while (currentState != END) {
     // Read state command from SPI (binary protocol)
-    ESP_LOGI(TAG, "Waiting for SPI command...");
+    ESP_LOGI(
+        TAG,
+        "Waiting for SPI command..                                             "
+        "                                                                      "
+        "                                                                      "
+        "                                                                      "
+        "                                                                      "
+        "                                                                      "
+        "                                                                      "
+        "                                                                      "
+        "                                                                      "
+        "                                                                      "
+        "                                                 .");
     uint8_t cmd = get_current_command();
     if (cmd != last_cmd) {
       last_cmd = cmd;
