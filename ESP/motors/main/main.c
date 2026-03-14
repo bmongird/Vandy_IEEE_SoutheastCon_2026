@@ -241,18 +241,18 @@ void antenna2_action() {
 }
 
 void antenna4_action() {
-//   move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 110,
-//                         &encoder2);
-//   vTaskDelay(pdMS_TO_TICKS(2000));
-//   move_distance_encoder(robot_singleton.omniMotors, LEFT, 40, 817, &encoder1);
-//   vTaskDelay(pdMS_TO_TICKS(2000));
-//   perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 23);
-//   vTaskDelay(pdMS_TO_TICKS(2000));
-//   perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL,
-//                    21);
-//   vTaskDelay(pdMS_TO_TICKS(2000));
-//   move_distance_encoder(robot_singleton.omniMotors, FORWARD, 35, 120, &encoder2);
-//   vTaskDelay(pdMS_TO_TICKS(2000));
+  move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 110,
+                        &encoder2);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  move_distance_encoder(robot_singleton.omniMotors, LEFT, 40, 817, &encoder1);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 23);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL,
+                   21);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  move_distance_encoder(robot_singleton.omniMotors, FORWARD, 35, 120, &encoder2);
+  vTaskDelay(pdMS_TO_TICKS(2000));
 
   servo_set_angle(&robot_singleton.eliServo1, 135);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -341,7 +341,7 @@ void app_main(void) {
     esp_restart();
   }
 
-  state_t currentState = ANTENNA2; // Start with ANTENNA4 for testing, will be
+  state_t currentState = ANTENNA4; // Start with ANTENNA4 for testing, will be
                                    // set by SPI commands in practice
   uint8_t last_cmd = STATE_IDLE;
   int loop_counter = 0;
@@ -457,7 +457,7 @@ void app_main(void) {
         state_executed2 = true; // Mark done
 
         // Transition to IDLE while waiting for next Pi command
-        currentState = IDLE;
+        currentState = ANTENNA2;
         ESP_LOGI(TAG, "Moving to ANTENNA2");
       }
       break;
@@ -493,7 +493,7 @@ void app_main(void) {
         state_executed1 = true; // Mark done
 
         // Transition to IDLE while waiting for next Pi command
-        currentState = IDLE;
+        currentState = ANTENNA1;
         ESP_LOGI(TAG, "Moving to ANTENNA1");
       }
       break;

@@ -32,34 +32,36 @@ class VisionSystem:
         Static method to act as the entry point for the process.
         """
         # Factory logic for strategy
-        strategy = None
-        if strategy_name == "pixy2":
-            strategy = Pixy2Strategy()
-        else:
-            print(f"Unknown strategy {strategy_name}, defaulting to mock")
-            strategy = Pixy2Strategy() # Fallback
+        pass
+        # strategy = None
+        # if strategy_name == "pixy2":
+        #     strategy = Pixy2Strategy()
+        # else:
+        #     print(f"Unknown strategy {strategy_name}, defaulting to mock")
+        #     strategy = Pixy2Strategy() # Fallback
 
-        strategy.start()
-        print(f"Vision Process Running with {strategy.__class__.__name__}...")
+        # strategy.start()
+        # print(f"Vision Process Running with {strategy.__class__.__name__}...")
         
         try:
             while True:
+            pass
                 # Get data from strategy
-                target = strategy.update()
+                # target = strategy.update()
                 
                 # Update shared memory
-                shared_data.timestamp = target.timestamp
-                shared_data.valid = target.valid
-                shared_data.x_offset = target.x_offset
-                shared_data.distance = target.distance
+                # shared_data.timestamp = target.timestamp
+                # shared_data.valid = target.valid
+                # shared_data.x_offset = target.x_offset
+                # shared_data.distance = target.distance
                 
                 # Avoid busy loop if strategy is fast
-                time.sleep(0.01) 
+                # time.sleep(0.01) 
                 
-        except KeyboardInterrupt:
-            pass
-        finally:
-            strategy.stop()
+        # except KeyboardInterrupt:
+        #     pass
+        # finally:
+        #     strategy.stop()
 
     def get_latest_target(self) -> VisionTarget:
         """

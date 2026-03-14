@@ -1,6 +1,6 @@
 import time
 from core.state_machine import State
-from subsystems.vision.pixy_detect import detect_led_color
+from subsystems.vision.pixy_detect_opencv import detect_led_color
 
 class DetectState(State):
     """

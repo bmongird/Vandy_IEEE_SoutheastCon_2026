@@ -6,7 +6,7 @@ import logging
 # Add the parent directory to sys.path so we can import from subsystems
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from subsystems.vision.pixy_detect import detect_led_color
+from subsystems.vision.pixy_detect_opencv import detect_led_color
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
