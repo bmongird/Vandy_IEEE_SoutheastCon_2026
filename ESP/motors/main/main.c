@@ -240,7 +240,13 @@ void antenna2_action() {
 }
 
 void antenna4_action() {
+  servo_set_angle(&robot.singleton.eliServo1, 0);
+  vTaskDelay(pdMS_TO_TICKS(2000));
   servo_set_angle(&robot.singleton.eliServo2, 500);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot.singleton.eliServo3, 500);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+
   move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 270,
                         &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -257,11 +263,41 @@ void antenna4_action() {
 
   servo_set_angle(&robot_singleton.eliServo1, 135);
   vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 1220);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 500);
+  vTaskDelay(pdMS_TO_TICKS(2000));
   servo_set_angle(&robot_singleton.eliServo1, 315);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 1220);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 500);
   vTaskDelay(pdMS_TO_TICKS(2000));
   servo_set_angle(&robot_singleton.eliServo1, 135);
   vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 1220);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 500);
+  vTaskDelay(pdMS_TO_TICKS(2000));
   servo_set_angle(&robot_singleton.eliServo1, 315);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 1220);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 500);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo1, 180);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 1220);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 500);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo3, 1220);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo1, 225);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 1220);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  servo_set_angle(&robot_singleton.eliServo2, 500);
   vTaskDelay(pdMS_TO_TICKS(2000));
   // servo_set_angle(&robot_singleton.eliServo1, 180);
   vTaskDelay(pdMS_TO_TICKS(2000));
