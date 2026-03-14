@@ -165,7 +165,7 @@ void antenna1_action() {
                         &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL,
-                   30);
+                   40);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -234,7 +234,7 @@ void antenna4_action() {
   vTaskDelay(pdMS_TO_TICKS(2000));
   move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 762, &encoder1);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 10);
+  perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 25);
   vTaskDelay(pdMS_TO_TICKS(2000));
   move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 50, &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -316,7 +316,7 @@ void app_main(void) {
     esp_restart();
   }
 
-  state_t currentState = ANTENNA2; // Start with ANTENNA4 for testing, will be
+  state_t currentState = ANTENNA4; // Start with ANTENNA4 for testing, will be
                                    // set by SPI commands in practice
   uint8_t last_cmd = STATE_IDLE;
   int loop_counter = 0;
