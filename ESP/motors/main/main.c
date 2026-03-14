@@ -124,7 +124,7 @@ int setup() {
   full_motor_init();
 
   // Give it a brief moment
-  vTaskDelay(pdMS_TO_TICKS(500));
+  vTaskDelay(pdMS_TO_TICKS(10000));
 
   /* Encoder Initialization */
   ESP_LOGI(TAG, "Initializing Through Bore Encoder");
@@ -171,30 +171,42 @@ void antenna1_action() {
   vTaskDelay(pdMS_TO_TICKS(2000));
   move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 730, &encoder1);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 20);
+  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 23);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 180,
-                        &encoder2);
+  perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 28);
   vTaskDelay(pdMS_TO_TICKS(2000));
-
+  perform_maneuver(robot_singleton.omniMotors, BACKWARD, NULL, 25);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 28);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, BACKWARD, NULL, 25);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 28);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, BACKWARD, NULL, 25);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 28);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, BACKWARD, NULL, 25);
+  vTaskDelay(pdMS_TO_TICKS(10000));
   // antenna 1 logic with servos
-  servo_set_angle(&robot_singleton.eliServo1,
-                  0); // Need to adjust depending on how long it takes to reach
-                      // full extension
-  vTaskDelay(pdMS_TO_TICKS(3000));
+  // servo_set_angle(&robot_singleton.eliServo1,
+  //                 0); // Need to adjust depending on how long it takes to reach
+  //                     // full extension
+  // vTaskDelay(pdMS_TO_TICKS(3000));
 
-  servo_set_angle(&robot_singleton.eliServo2, 350);
-  vTaskDelay(pdMS_TO_TICKS(3000));
+  // servo_set_angle(&robot_singleton.eliServo2, 350);
+  // vTaskDelay(pdMS_TO_TICKS(3000));
 
-  servo_set_angle(&robot_singleton.eliServo1,
-                  0); // Need to adjust depending on how long it takes to reach
-                      // full extension
-  vTaskDelay(pdMS_TO_TICKS(3000));
+  // servo_set_angle(&robot_singleton.eliServo1,
+  //                 0); // Need to adjust depending on how long it takes to reach
+  //                     // full extension
+  // vTaskDelay(pdMS_TO_TICKS(3000));
 
-  servo_set_angle(&robot_singleton.eliServo1, 300); // Same here
-  vTaskDelay(pdMS_TO_TICKS(4000));
+  // servo_set_angle(&robot_singleton.eliServo1, 300); // Same here
+  // vTaskDelay(pdMS_TO_TICKS(4000));
 
-  servo_set_angle(&robot_singleton.eliServo2, 0);
+  // servo_set_angle(&robot_singleton.eliServo2, 0);
   vTaskDelay(pdMS_TO_TICKS(3000));
 }
 
@@ -241,7 +253,7 @@ void antenna2_action() {
 }
 
 void antenna4_action() {
-  move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 110,
+  move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 270,
                         &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
   move_distance_encoder(robot_singleton.omniMotors, LEFT, 40, 817, &encoder1);
@@ -457,7 +469,7 @@ void app_main(void) {
         state_executed2 = true; // Mark done
 
         // Transition to IDLE while waiting for next Pi command
-        currentState = ANTENNA2;
+        currentState = IDLE;
         ESP_LOGI(TAG, "Moving to ANTENNA2");
       }
       break;
