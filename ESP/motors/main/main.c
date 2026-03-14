@@ -191,7 +191,8 @@ void antenna1_action() {
   vTaskDelay(pdMS_TO_TICKS(10000));
   // antenna 1 logic with servos
   // servo_set_angle(&robot_singleton.eliServo1,
-  //                 0); // Need to adjust depending on how long it takes to reach
+  //                 0); // Need to adjust depending on how long it takes to
+  //                 reach
   //                     // full extension
   // vTaskDelay(pdMS_TO_TICKS(3000));
 
@@ -199,7 +200,8 @@ void antenna1_action() {
   // vTaskDelay(pdMS_TO_TICKS(3000));
 
   // servo_set_angle(&robot_singleton.eliServo1,
-  //                 0); // Need to adjust depending on how long it takes to reach
+  //                 0); // Need to adjust depending on how long it takes to
+  //                 reach
   //                     // full extension
   // vTaskDelay(pdMS_TO_TICKS(3000));
 
@@ -218,21 +220,20 @@ void antenna2_action() {
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 27);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL,
-                   32);
-    vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 32);
+  vTaskDelay(pdMS_TO_TICKS(2000));
 
   move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 1100,
                         &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
   move_distance_encoder(robot_singleton.omniMotors, RIGHT, 30, 200, &encoder1);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 35);
+  perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL,
+                   35);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, RIGHT, NULL, 30);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 20,
-                        &encoder2);
+  move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 20, &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
 
   servo_set_angle(&robot_singleton.eliServo1, 180);
@@ -253,6 +254,7 @@ void antenna2_action() {
 }
 
 void antenna4_action() {
+  servo_set_angle(&robot.singleton.eliServo2, 500);
   move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 270,
                         &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -263,7 +265,8 @@ void antenna4_action() {
   perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL,
                    21);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  move_distance_encoder(robot_singleton.omniMotors, FORWARD, 35, 120, &encoder2);
+  move_distance_encoder(robot_singleton.omniMotors, FORWARD, 35, 120,
+                        &encoder2);
   vTaskDelay(pdMS_TO_TICKS(2000));
 
   servo_set_angle(&robot_singleton.eliServo1, 135);
@@ -274,10 +277,9 @@ void antenna4_action() {
   vTaskDelay(pdMS_TO_TICKS(2000));
   servo_set_angle(&robot_singleton.eliServo1, 315);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  //servo_set_angle(&robot_singleton.eliServo1, 180);
+  // servo_set_angle(&robot_singleton.eliServo1, 180);
   vTaskDelay(pdMS_TO_TICKS(2000));
   servo_set_angle(&robot_singleton.eliServo1, 0);
-  
 
   // servo_set_angle(&robot_singleton.eliServo3, 350);
   // vTaskDelay(pdMS_TO_TICKS(7000));
