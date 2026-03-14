@@ -286,7 +286,7 @@ void app_main(void)
         esp_restart();
     }
     
-    state_t currentState = ANTENNA2; // Start with ANTENNA4 for testing, will be set by SPI commands in practice
+    state_t currentState = ANTENNA4; // Start with ANTENNA4 for testing, will be set by SPI commands in practice
     uint8_t last_cmd = STATE_IDLE;
     int loop_counter = 0;
     bool state_executed = false; // Prevents re-executing long functions
