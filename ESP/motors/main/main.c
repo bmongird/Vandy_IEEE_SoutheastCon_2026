@@ -20,7 +20,8 @@
 #define ENC_PIN_INDEX  GPIO_NUM_36
 #define ENC_PIN_ABS    GPIO_NUM_39
 
-through_bore_encoder_t encoder;
+through_bore_encoder_t encoder1;
+through_bore_encoder_t encoder2; // If you have a second encoder, configure it similarly
 
 // Mimicking the robot structure from IEEE_Hardware_Competition_2025
 typedef struct {
@@ -94,14 +95,24 @@ int setup() {
 
     /* Encoder Initialization */
     ESP_LOGI(TAG, "Initializing Through Bore Encoder");
-    encoder = (through_bore_encoder_t){
+    encoder1 = (through_bore_encoder_t){
         .pin_a     = ENC_PIN_A,
         .pin_b     = ENC_PIN_B,
         .pin_index = ENC_PIN_INDEX,
         .pin_abs   = ENC_PIN_ABS,
     };
-    if (tbe_init(&encoder) != ESP_OK) {
+    if (tbe_init(&encoder1) != ESP_OK) {
         ESP_LOGE(TAG, "Encoder init failed!");
+        return -1;
+    }
+    encoder2 = (through_bore_encoder_t){
+        .pin_a     = GPIO_NUM_13, // Example pins for a second encoder
+        .pin_b     = GPIO_NUM_14,
+        .pin_index = GPIO_NUM_16,
+        .pin_abs   = GPIO_NUM_26,
+    };
+    if (tbe_init(&encoder2) != ESP_OK) {
+        ESP_LOGE(TAG, "Second encoder init failed!");
         return -1;
     }
 
@@ -155,11 +166,11 @@ void antenna2_action()
 
 void antenna4_action()
 {
-    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 0.5, 228, &encoder);
+    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 228, &encoder2);
     vTaskDelay(pdMS_TO_TICKS(2000));
-    move_distance_encoder(robot_singleton.omniMotors, LEFT, 0.5, 762, &encoder);
+    move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 762, &encoder1);
     vTaskDelay(pdMS_TO_TICKS(2000));
-    move_distance_encoder(robot_singleton.omniMotors, FORWARD, 0.5, 25, &encoder);
+    move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 25, &encoder2);
     vTaskDelay(pdMS_TO_TICKS(2000));
     
     
@@ -242,7 +253,7 @@ void app_main(void)
         esp_restart();
     }
     
-    state_t currentState = IDLE;
+    state_t currentState = ANTENNA4; // Start with ANTENNA4 for testing, will be set by SPI commands in practice
     uint8_t last_cmd = STATE_IDLE;
     int loop_counter = 0;
     bool state_executed = false; // Prevents re-executing long functions
@@ -275,13 +286,24 @@ void app_main(void)
 
         // ── Print encoder distance every 10 loops ──────────────
         if (loop_counter % 10 == 0) {
-            int64_t counts = tbe_get_count(&encoder);
+            
+            int64_t counts = tbe_get_count(&encoder1);
             float distance_mm = (float)counts / (float)TBE_COUNTS_PER_REV * WHEEL_CIRCUMFERENCE_MM;
-            float revs = tbe_get_revolutions(&encoder);
-            float abs_deg = tbe_get_abs_angle(&encoder);
+            float revs = tbe_get_revolutions(&encoder1);
+            float abs_deg = tbe_get_abs_angle(&encoder1);
 
             ESP_LOGI(TAG, "ENC | dist: %.1f mm | counts: %lld | revs: %.2f | abs: %.1f°",
                      distance_mm, (long long)counts, revs, abs_deg);
+
+            int64_t counts2 = tbe_get_count(&encoder2);
+            float distance_mm2 = (float)counts2 / (float)TBE_COUNTS_PER_REV * WHEEL_CIRCUMFERENCE_MM;
+            float revs2 = tbe_get_revolutions(&encoder2);
+            float abs_deg2 = tbe_get_abs_angle(&encoder2);
+
+            ESP_LOGI(TAG, "ENC2| dist: %.1f mm | counts: %lld | revs: %.2f | abs: %.1f°",
+                     distance_mm2, (long long)counts2, revs2, abs_deg2);
+            // perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 20); // Stop motors to get stable encoder readings
+            // vTaskDelay(pdMS_TO_TICKS(100));
         }
 
         switch (currentState) {
@@ -324,6 +346,7 @@ void app_main(void)
                     
                     // Transition to IDLE while waiting for next Pi command
                     currentState = ANTENNA2; 
+                    ESP_LOGI(TAG, "Moving to ANTENNA2");
                 }
                 break;
             
@@ -340,13 +363,14 @@ void app_main(void)
                     state_executed = true; // Mark done
                     
                     // Transition to IDLE while waiting for next Pi command
-                    currentState = ANTENNA4; 
+                    currentState = IDLE; 
                 }
                 break;
             case ANTENNA4:
                 if (!state_executed) {
-                    ESP_LOGI(TAG, "Executing state: ANTENNA");
+                    ESP_LOGI(TAG, "Executing state: ANTENNA4");
                     // run_antenna_path();
+                    // perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 10);
                     antenna4_action();
                     
                     // Simulate long running function
@@ -357,6 +381,7 @@ void app_main(void)
                     
                     // Transition to IDLE while waiting for next Pi command
                     currentState = IDLE; 
+                    ESP_LOGI(TAG, "Moving to ANTENNA1");
                 }
                 break;
             

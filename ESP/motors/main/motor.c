@@ -281,6 +281,7 @@ void move_distance_encoder(motor_t *motors, maneuver_t maneuver, float speed_sca
     }
 
     while (true) {
+        // ESP_LOGI(TAG, "Checking encoder position");
         int64_t current_count = tbe_get_count(enc);
         int64_t diff = current_count - start_count;
         if (diff < 0) {
@@ -292,10 +293,14 @@ void move_distance_encoder(motor_t *motors, maneuver_t maneuver, float speed_sca
         if (distance_traveled_mm >= effective_target_mm) {
             break;
         }
+        else{
+            ESP_LOGI(TAG, "Distance traveled: %.2f mm, Target: %.2f mm", distance_traveled_mm, effective_target_mm);
+        }
 
         perform_maneuver(motors, maneuver, NULL, speed_scalar);
         vTaskDelay(pdMS_TO_TICKS(10)); // Small delay to yield to other tasks
     }
     
     perform_maneuver(motors, STOP, NULL, 0);
+    ESP_LOGI(TAG, "Exiting move_distance_encoder");
 }
