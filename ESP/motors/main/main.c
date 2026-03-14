@@ -139,7 +139,7 @@ void antenna1_action() {
     vTaskDelay(pdMS_TO_TICKS(2000));
     perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 30);
     vTaskDelay(pdMS_TO_TICKS(2000));
-    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 30);
+    perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(2000));
     move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 686, &encoder1);
     vTaskDelay(pdMS_TO_TICKS(2000));
