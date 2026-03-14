@@ -49,8 +49,8 @@ void full_motor_init() {
     motor_t backRight =     { .pwm_pin = 32,    .group_id = 0, .timer_id = 1, .oper_id = 1, .type = DC_MOTOR };
     motor_t eliServo1 =   { .pwm_pin = 33,    .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
     motor_t eliServo2 =  { .pwm_pin = 4,     .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
-    motor_t eliServo3 =  { .pwm_pin = 7,     .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
-    motor_t lazyTong =      { .pwm_pin = 27,    .group_id = 1, .timer_id = 0, .oper_id = 0, .type = SERVO_MOTOR };
+    motor_t eliServo3 =  { .pwm_pin = 27,     .group_id = 0, .timer_id = 2, .oper_id = 2, .type = SERVO_MOTOR };
+    motor_t lazyTong =      { .pwm_pin = 3,    .group_id = 1, .timer_id = 0, .oper_id = 0, .type = SERVO_MOTOR };
 
     motor_control_init(&frontLeft);
     motor_control_init(&frontRight);
@@ -122,11 +122,46 @@ typedef enum {
 
 void antenna1_action() {
     //antenna 1 logic with servos
-    dc_set_speed(&robot_singleton.eliServo1, 100);//Need to adjust depending on how long it takes to reach full extension
+    servo_set_angle(&robot_singleton.eliServo1, 0);//Need to adjust depending on how long it takes to reach full extension
     vTaskDelay(pdMS_TO_TICKS(3000));
-    dc_set_speed(&robot_singleton.eliServo1, -100);//Same here
+
+    servo_set_angle(&robot_singleton.eliServo2, 350);
     vTaskDelay(pdMS_TO_TICKS(3000));
-    dc_set_speed(&robot_singleton.eliServo1, 0);
+
+    servo_set_angle(&robot_singleton.eliServo1, 0);//Need to adjust depending on how long it takes to reach full extension
+    vTaskDelay(pdMS_TO_TICKS(3000));
+
+    servo_set_angle(&robot_singleton.eliServo1, 300);//Same here
+    vTaskDelay(pdMS_TO_TICKS(4000));
+
+    servo_set_angle(&robot_singleton.eliServo2, 0);
+    vTaskDelay(pdMS_TO_TICKS(3000));
+}
+
+void antenna2_action()
+{
+    servo_set_angle(&robot_singleton.eliServo2, 150);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
+    servo_set_angle(&robot_singleton.eliServo2, 300);
+    vTaskDelay(pdMS_TO_TICKS(7000));
+
+    servo_set_angle(&robot_singleton.eliServo2, 150);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    ESP_LOGI(TAG, "Antenna 2 action executed (placeholder)");
+}
+
+void antenna3_action()
+{
+    servo_set_angle(&robot_singleton.eliServo3, 0);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
+    // servo_set_angle(&robot_singleton.eliServo3, 350);
+    // vTaskDelay(pdMS_TO_TICKS(7000));
+
+    // servo_set_angle(&robot_singleton.eliServo3, 0);
+    // vTaskDelay(pdMS_TO_TICKS(2000));
+    ESP_LOGI(TAG, "Antenna 3 action executed (placeholder)");
 }
 
 void run_antenna_path()
@@ -196,7 +231,7 @@ void app_main(void)
         esp_restart();
     }
     
-    state_t currentState = IDLE;
+    state_t currentState = ANTENNA;
     uint8_t last_cmd = STATE_IDLE;
     int loop_counter = 0;
     bool state_executed = false; // Prevents re-executing long functions
@@ -217,8 +252,16 @@ void app_main(void)
                     currentState = DUCKS;
                     ESP_LOGI(TAG, "State transition via SPI: DUCKS");
                     break;
-                case STATE_ANTENNA:
-                    currentState = ANTENNA;
+                case STATE_ANTENNA1:
+                    currentState = ANTENNA1;
+                    ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
+                    break;
+                case STATE_ANTENNA2:
+                    currentState = ANTENNA2;
+                    ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
+                    break;
+                case STATE_ANTENNA3:
+                    currentState = ANTENNA3;
                     ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
                     break;
                 default:
@@ -267,7 +310,8 @@ void app_main(void)
             case ANTENNA:
                 if (!state_executed) {
                     ESP_LOGI(TAG, "Executing state: ANTENNA");
-                    run_antenna_path();
+                    // run_antenna_path();
+                    antenna2_action();
                     
                     // Simulate long running function
                     vTaskDelay(pdMS_TO_TICKS(1000));
