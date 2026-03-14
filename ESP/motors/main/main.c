@@ -171,7 +171,7 @@ void antenna1_action() {
   vTaskDelay(pdMS_TO_TICKS(2000));
   move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 730, &encoder1);
   vTaskDelay(pdMS_TO_TICKS(2000));
-  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 23);
+  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 30);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 28);
   vTaskDelay(pdMS_TO_TICKS(2000));
@@ -181,32 +181,20 @@ void antenna1_action() {
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, BACKWARD, NULL, 25);
   vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 30);
+  vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 28);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, BACKWARD, NULL, 25);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 30);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 28);
   vTaskDelay(pdMS_TO_TICKS(2000));
   perform_maneuver(robot_singleton.omniMotors, BACKWARD, NULL, 25);
   vTaskDelay(pdMS_TO_TICKS(10000));
-  // antenna 1 logic with servos
-  // servo_set_angle(&robot_singleton.eliServo1,
-  //                 0); // Need to adjust depending on how long it takes to reach
-  //                     // full extension
-  // vTaskDelay(pdMS_TO_TICKS(3000));
-
-  // servo_set_angle(&robot_singleton.eliServo2, 350);
-  // vTaskDelay(pdMS_TO_TICKS(3000));
-
-  // servo_set_angle(&robot_singleton.eliServo1,
-  //                 0); // Need to adjust depending on how long it takes to reach
-  //                     // full extension
-  // vTaskDelay(pdMS_TO_TICKS(3000));
-
-  // servo_set_angle(&robot_singleton.eliServo1, 300); // Same here
-  // vTaskDelay(pdMS_TO_TICKS(4000));
-
-  // servo_set_angle(&robot_singleton.eliServo2, 0);
+  perform_maneuver(robot_singleton.omniMotors, LEFT, NULL, 30);
+  vTaskDelay(pdMS_TO_TICKS(2000));
   vTaskDelay(pdMS_TO_TICKS(3000));
 }
 
