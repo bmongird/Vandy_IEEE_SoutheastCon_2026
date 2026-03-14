@@ -137,7 +137,7 @@ void antenna1_action() {
 
     move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 25, &encoder2);
     vTaskDelay(pdMS_TO_TICKS(2000));
-    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 30);
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 20);
     vTaskDelay(pdMS_TO_TICKS(2000));
     perform_maneuver(robot_singleton.omniMotors, STOP, NULL, 0);
     vTaskDelay(pdMS_TO_TICKS(2000));
@@ -179,19 +179,19 @@ void antenna2_action()
     
     
 
-    servo_set_angle(&robot_singleton.eliServo3, 180);
+    servo_set_angle(&robot_singleton.eliServo1, 180);
     vTaskDelay(pdMS_TO_TICKS(2000));
 
     servo_set_angle(&robot_singleton.eliServo2, 300);
     vTaskDelay(pdMS_TO_TICKS(7000));
 
-    servo_set_angle(&robot_singleton.eliServo2, 900);
+    servo_set_angle(&robot_singleton.eliServo1, 900);
     vTaskDelay(pdMS_TO_TICKS(2000));
 
     servo_set_angle(&robot_singleton.eliServo2, 0);
     vTaskDelay(pdMS_TO_TICKS(2000));
 
-    servo_set_angle(&robot_singleton.eliServo2, 200);
+    servo_set_angle(&robot_singleton.eliServo1, 200);
     
     
     ESP_LOGI(TAG, "Antenna 2 action executed (placeholder)");
