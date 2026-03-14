@@ -192,7 +192,7 @@ void antenna2_action()
 
 void antenna4_action()
 {
-    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 228, &encoder2);
+    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 110, &encoder2);
     vTaskDelay(pdMS_TO_TICKS(2000));
     move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 762, &encoder1);
     vTaskDelay(pdMS_TO_TICKS(2000));
@@ -279,13 +279,17 @@ void app_main(void)
         esp_restart();
     }
     
-    state_t currentState = ANTENNA4; // Start with ANTENNA4 for testing, will be set by SPI commands in practice
+    state_t currentState = ANTENNA2; // Start with ANTENNA4 for testing, will be set by SPI commands in practice
     uint8_t last_cmd = STATE_IDLE;
     int loop_counter = 0;
     bool state_executed = false; // Prevents re-executing long functions
+    bool state_executed1 = false; // For states with multiple steps like ANTENNA1/2/4
+    bool state_executed2 = false; // For states with multiple steps like ANTENNA1/2/4
+    bool state_executed3 = false; // For states with multiple steps like ANTENNA1/2/4
 
     while(currentState != END) {
         // Read state command from SPI (binary protocol)
+        ESP_LOGI(TAG, "Waiting for SPI command...");
         uint8_t cmd = get_current_command();
         if (cmd != last_cmd) {
             last_cmd = cmd;
@@ -301,7 +305,7 @@ void app_main(void)
                     ESP_LOGI(TAG, "State transition via SPI: DUCKS");
                     break;
                 case STATE_ANTENNA:
-                    currentState = ANTENNA1;
+                    currentState = ANTENNA4;
                     ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
                     break;
                 default:
@@ -328,8 +332,6 @@ void app_main(void)
 
             ESP_LOGI(TAG, "ENC2| dist: %.1f mm | counts: %lld | revs: %.2f | abs: %.1f°",
                      distance_mm2, (long long)counts2, revs2, abs_deg2);
-            // perform_maneuver(robot_singleton.omniMotors, FORWARD, NULL, 20); // Stop motors to get stable encoder readings
-            // vTaskDelay(pdMS_TO_TICKS(100));
         }
 
         switch (currentState) {
@@ -359,8 +361,9 @@ void app_main(void)
                 break;
                 
             case ANTENNA1:
-                if (!state_executed) {
-                    ESP_LOGI(TAG, "Executing state: ANTENNA");
+                if (!state_executed2) {
+                    ESP_LOGI(TAG, "Executing state: ANTENNA1");
+                    vTaskDelay(pdMS_TO_TICKS(4000)); // Simulate processing delay before action
                     // run_antenna_path();
                     antenna1_action();
                     
@@ -368,7 +371,7 @@ void app_main(void)
                     vTaskDelay(pdMS_TO_TICKS(1000));
                     
                     report_state_complete();
-                    state_executed = true; // Mark done
+                    state_executed2 = true; // Mark done
                     
                     // Transition to IDLE while waiting for next Pi command
                     currentState = ANTENNA2; 
@@ -377,7 +380,7 @@ void app_main(void)
                 break;
             
             case ANTENNA2:
-                if (!state_executed) {
+                if (!state_executed3) {
                     ESP_LOGI(TAG, "Executing state: ANTENNA2");
                     // run_antenna_path();
                     antenna2_action();
@@ -386,7 +389,8 @@ void app_main(void)
                     vTaskDelay(pdMS_TO_TICKS(1000));
                     
                     report_state_complete();
-                    state_executed = true; // Mark done
+                    state_executed3 = true; // Mark done
+                    state_executed2 = true; // Reset for potential re-entry
                     
                     // Transition to IDLE while waiting for next Pi command
                     currentState = IDLE; 
@@ -403,10 +407,10 @@ void app_main(void)
                     vTaskDelay(pdMS_TO_TICKS(1000));
                     
                     report_state_complete();
-                    state_executed = true; // Mark done
+                    state_executed1 = true; // Mark done
                     
                     // Transition to IDLE while waiting for next Pi command
-                    currentState = IDLE; 
+                    currentState = ANTENNA1; 
                     ESP_LOGI(TAG, "Moving to ANTENNA1");
                 }
                 break;
