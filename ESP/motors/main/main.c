@@ -118,7 +118,7 @@ typedef enum {
     DUCKS,
     ANTENNA1,
     ANTENNA2,
-    ANTENNA3,
+    ANTENNA4,
     END
 } state_t;
 
@@ -153,7 +153,7 @@ void antenna2_action()
     ESP_LOGI(TAG, "Antenna 2 action executed (placeholder)");
 }
 
-void antenna3_action()
+void antenna4_action()
 {
     servo_set_angle(&robot_singleton.eliServo3, 0);
     vTaskDelay(pdMS_TO_TICKS(2000));
@@ -163,7 +163,7 @@ void antenna3_action()
 
     // servo_set_angle(&robot_singleton.eliServo3, 0);
     // vTaskDelay(pdMS_TO_TICKS(2000));
-    ESP_LOGI(TAG, "Antenna 3 action executed (placeholder)");
+    ESP_LOGI(TAG, "Antenna 4 action executed (placeholder)");
 }
 
 void run_antenna_path()
@@ -334,11 +334,11 @@ void app_main(void)
                     currentState = ANTENNA3; 
                 }
                 break;
-            case ANTENNA3:
+            case ANTENNA4:
                 if (!state_executed) {
                     ESP_LOGI(TAG, "Executing state: ANTENNA");
                     // run_antenna_path();
-                    antenna3_action();
+                    antenna4_action();
                     
                     // Simulate long running function
                     vTaskDelay(pdMS_TO_TICKS(1000));
