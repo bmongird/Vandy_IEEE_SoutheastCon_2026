@@ -27,7 +27,7 @@ class MasterIdleState(State):
         if self.controller.pushbutton.is_pressed() or (key and key.lower() == 'e'):
         # if key and key.lower() == 'e':
             self.logger.info("Pushbutton or 'e' key pressed. Transitioning to DUCKS.")
-            self.next_state = "DUCKS"
+            self.next_state = "ANTENNA"
 
     def check_transitions(self):
         if self.next_state == "ANTENNA":

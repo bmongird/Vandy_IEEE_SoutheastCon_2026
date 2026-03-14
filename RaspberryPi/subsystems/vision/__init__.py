@@ -2,7 +2,6 @@ import logging
 import multiprocessing
 import time
 from .core import VisionTarget, VisionStrategy
-from .pixy2 import Pixy2Strategy
 
 class VisionSystem:
     """

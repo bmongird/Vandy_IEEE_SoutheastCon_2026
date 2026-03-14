@@ -71,8 +71,8 @@ LCD_5x8DOTS = 0x00
 LCD_BACKLIGHT = 0x08
 ENABLE        = 0b00000100
 
-VALID_COLORS = {"R", "G", "B", "P", "N"}
-CYCLE_INTERVAL = 5  # seconds
+VALID_COLORS = {"R", "G", "B", "P", "F"}
+CYCLE_INTERVAL = 3  # seconds
 
 
 # ---------------------------------------------------------------------------
@@ -174,7 +174,7 @@ class AntennaDisplay:
         self._thread: Thread | None = None
 
         # Default all antennas to R
-        self._colors = {1: "N", 2: "N", 3: "N", 4: "N"}
+        self._colors = {1: "F", 2: "F", 3: "F", 4: "F"}
 
         logging.info(f"LCD ready at 0x{self._lcd.addr:02X}")
 
@@ -188,7 +188,7 @@ class AntennaDisplay:
         antenna : int
             Antenna number, 1 through 4.
         color : str
-            One of ``"R"``, ``"G"``, ``"B"``, ``"P"``, or ``"N"`` (case-insensitive).
+            One of ``"R"``, ``"G"``, ``"B"``, ``"P"``, or ``"F"`` (case-insensitive).
 
         Raises
         ------
@@ -240,7 +240,7 @@ class AntennaDisplay:
             "G": "GRE",
             "B": "BLU",
             "P": "PUR",
-            "N": "OFF"
+            "F": "OFF"
         }
         display_color = color_map.get(color, color)
         return f"ANTENNA {antenna}: {display_color}"

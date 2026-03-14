@@ -1,6 +1,5 @@
 from core.state_machine import StateMachine
 from subsystems.drivetrain import DriveTrain
-from subsystems.vision import VisionSystem
 from subsystems.lcd_subsystem import LCDSubsystem
 from subsystems.esp_comm import ESPCommunicator
 from subsystems.keyboard_input import KeyboardInput
@@ -12,11 +11,11 @@ class RobotController(StateMachine):
     Top-level controller for the robot, inheriting from StateMachine.
     Manages subsystems (DriveTrain, Vision, ESP, Keyboard, Pushbutton).
     """
-    def __init__(self):
+    def __init__(self, debug=False):
         super().__init__()
+        self.debug = debug
         # Initialize hardware components
         self.drive = DriveTrain()
-        self.vision = VisionSystem()
         self.lcd = LCDSubsystem()
         self.esp_comm = ESPCommunicator()
         self.keyboard = KeyboardInput()
@@ -39,14 +38,19 @@ class RobotController(StateMachine):
         """
         Main loop for the robot controller.
         """
+        cycles = 0
         try:
             while True:
                 self.update()
                 time.sleep(0.05)
-                # Example global check: Print vision status periodically
-                # target = self.vision.get_latest_target()
-                # if target.valid:
-                #    print(f"Vision Target: {target.x_offset:.2f}")
+                cycles += 1
+                
+                # In debug mode, print state periodically (every 0.5s = 10 loops at 0.05s)
+                if self.debug and cycles % 10 == 0:
+                    current_state_name = getattr(self.current_state, "name", type(self.current_state).__name__)
+                    esp_state = getattr(self.esp_comm, "current_esp_state", "Unknown")
+                    print(f"[{cycles*0.05:.1f}s] Current Pi State: {current_state_name} | Pi thinks ESP is: {esp_state}")
+
 
         except KeyboardInterrupt:
             print("Robot stopped by user.")
@@ -59,7 +63,6 @@ class RobotController(StateMachine):
         """
         print("Cleaning up resources...")
         self.drive.stop()
-        self.vision.stop()
         self.lcd.stop()
         self.esp_comm.close()
 

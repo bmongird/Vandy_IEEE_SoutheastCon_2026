@@ -1,4 +1,5 @@
 from core.state_machine import State
+from subsystems.vision.pixy_detect import detect_led_color
 
 class MasterAntennaState(State):
     """
@@ -26,21 +27,16 @@ class MasterAntennaState(State):
             if self.controller.esp_comm.is_state_completed():
                 self.logger.info("ESP Antenna state completed.")
                 
-                # Initiate reading LED
+                # Read LED color from Pixy2
                 self.logger.info("Reading LED from Vision System...")
-                color = "UNKNOWN"
-                if hasattr(self.controller, 'vision'):
-                    # color = self.controller.vision.detect_led_color()
-                    pass
-                else:
-                    color = "R" # Mock color for testing
+                color = detect_led_color()
                     
                 self.logger.info(f"Detected LED Color: {color}")
                 
                 # Update screen accordingly
                 if hasattr(self.controller, 'lcd'):
                     self.logger.info(f"Updating LCD with color {color}")
-                    # self.controller.lcd.set_antenna(1, color)
+                    self.controller.lcd.set_antenna(1, color)
                 else:
                     self.logger.info(f"[SIMULATED] LCD updated with color {color}")
                 
