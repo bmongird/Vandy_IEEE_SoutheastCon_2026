@@ -179,14 +179,21 @@ void antenna2_action()
     
     
 
-    servo_set_angle(&robot_singleton.eliServo2, 150);
+    servo_set_angle(&robot_singleton.eliServo3, 180);
     vTaskDelay(pdMS_TO_TICKS(2000));
 
     servo_set_angle(&robot_singleton.eliServo2, 300);
     vTaskDelay(pdMS_TO_TICKS(7000));
 
-    servo_set_angle(&robot_singleton.eliServo2, 150);
+    servo_set_angle(&robot_singleton.eliServo2, 900);
     vTaskDelay(pdMS_TO_TICKS(2000));
+
+    servo_set_angle(&robot_singleton.eliServo2, 0);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
+    servo_set_angle(&robot_singleton.eliServo2, 200);
+    
+    
     ESP_LOGI(TAG, "Antenna 2 action executed (placeholder)");
 }
 
