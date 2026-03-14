@@ -116,7 +116,9 @@ int setup() {
 typedef enum {
     IDLE,
     DUCKS,
-    ANTENNA,
+    ANTENNA1,
+    ANTENNA2,
+    ANTENNA3,
     END
 } state_t;
 
@@ -231,7 +233,7 @@ void app_main(void)
         esp_restart();
     }
     
-    state_t currentState = ANTENNA;
+    state_t currentState = IDLE;
     uint8_t last_cmd = STATE_IDLE;
     int loop_counter = 0;
     bool state_executed = false; // Prevents re-executing long functions
@@ -252,16 +254,8 @@ void app_main(void)
                     currentState = DUCKS;
                     ESP_LOGI(TAG, "State transition via SPI: DUCKS");
                     break;
-                case STATE_ANTENNA1:
+                case STATE_ANTENNA:
                     currentState = ANTENNA1;
-                    ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
-                    break;
-                case STATE_ANTENNA2:
-                    currentState = ANTENNA2;
-                    ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
-                    break;
-                case STATE_ANTENNA3:
-                    currentState = ANTENNA3;
                     ESP_LOGI(TAG, "State transition via SPI: ANTENNA");
                     break;
                 default:
@@ -307,11 +301,44 @@ void app_main(void)
                 }
                 break;
                 
-            case ANTENNA:
+            case ANTENNA1:
                 if (!state_executed) {
                     ESP_LOGI(TAG, "Executing state: ANTENNA");
                     // run_antenna_path();
+                    antenna1_action();
+                    
+                    // Simulate long running function
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    
+                    report_state_complete();
+                    state_executed = true; // Mark done
+                    
+                    // Transition to IDLE while waiting for next Pi command
+                    currentState = ANTENNA2; 
+                }
+                break;
+            
+            case ANTENNA2:
+                if (!state_executed) {
+                    ESP_LOGI(TAG, "Executing state: ANTENNA2");
+                    // run_antenna_path();
                     antenna2_action();
+                    
+                    // Simulate long running function
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    
+                    report_state_complete();
+                    state_executed = true; // Mark done
+                    
+                    // Transition to IDLE while waiting for next Pi command
+                    currentState = ANTENNA3; 
+                }
+                break;
+            case ANTENNA3:
+                if (!state_executed) {
+                    ESP_LOGI(TAG, "Executing state: ANTENNA");
+                    // run_antenna_path();
+                    antenna3_action();
                     
                     // Simulate long running function
                     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -323,7 +350,7 @@ void app_main(void)
                     currentState = IDLE; 
                 }
                 break;
-                
+            
             case END:
                 break;
         }
