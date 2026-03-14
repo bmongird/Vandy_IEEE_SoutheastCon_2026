@@ -134,6 +134,18 @@ typedef enum {
 } state_t;
 
 void antenna1_action() {
+
+    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 25, &encoder2);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 30);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_COUNTERCLOCKWISE, NULL, 30);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 686, &encoder1);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 661, &encoder2);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    
     //antenna 1 logic with servos
     servo_set_angle(&robot_singleton.eliServo1, 0);//Need to adjust depending on how long it takes to reach full extension
     vTaskDelay(pdMS_TO_TICKS(3000));
@@ -153,6 +165,20 @@ void antenna1_action() {
 
 void antenna2_action()
 {
+    move_distance_encoder(robot_singleton.omniMotors, BACKWARD, 30, 25, &encoder2);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    perform_maneuver(robot_singleton.omniMotors, ROTATE_CLOCKWISE, NULL, 30);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 100, &encoder2);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    move_distance_encoder(robot_singleton.omniMotors, LEFT, 30, 85, &encoder1);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    move_distance_encoder(robot_singleton.omniMotors, FORWARD, 30, 662, &encoder2);
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    
+    
+    
+
     servo_set_angle(&robot_singleton.eliServo2, 150);
     vTaskDelay(pdMS_TO_TICKS(2000));
 
