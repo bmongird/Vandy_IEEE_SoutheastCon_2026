@@ -3,7 +3,7 @@
 
 #define SERVO_MIN_PULSEWIDTH_US 500   // Minimum pulse width in microseconds
 #define SERVO_MAX_PULSEWIDTH_US 2500  // Maximum pulse width in microseconds
-#define SERVO_MAX_ANGLE 350.0         // Maximum angle in degrees
+#define SERVO_MAX_ANGLE 1800.0         // Maximum angle in degrees
 #define TAG "MOTOR"
 #define FORWARD_SPEED_CONSTANT  0.66   // Feet per second
 #define STRAFE_SPEED_CONSTANT 0.5      // Feet per second
